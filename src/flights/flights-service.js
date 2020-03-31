@@ -1,12 +1,12 @@
 const FlightsService = {
     getAllFlights(knex, id) {
-      return knex.select('*').from('flight').where('user_id', id)
+      return knex.select('*').from('flights').where('user_id', id)
     },
   
     insertFlight(knex, newFlight) {
       return knex
         .insert(newFlight)
-        .into('flight')
+        .into('flights')
         .returning('*')
         .then(rows => {
           return rows[0]
@@ -15,20 +15,20 @@ const FlightsService = {
   
     getById(knex, id) {
       return knex
-        .from('flight')
+        .from('flights')
         .select('*')
         .where('id', id)
         .first()
     },
   
     deleteFlight(knex, id) {
-      return knex('flight')
+      return knex('flights')
         .where({ id })
         .delete()
     },
   
     updateFlight(knex, id, newFlightFields) {
-      return knex('flight')
+      return knex('flights')
         .where({ id })
         .update(newFlightFields)
     },
