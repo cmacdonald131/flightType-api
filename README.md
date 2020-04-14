@@ -1,4 +1,4 @@
-# Fantasy Football Database (FFDb) API
+# FlightType API
 
 The live link to the app is https://flighttype-app.now.sh/
 
@@ -7,7 +7,7 @@ The live link to the app is https://flighttype-app.now.sh/
 
 ## API Documentation
 
-Check out the [FFDb API Documentation](https://gist.github.com/cmacdonald131/c40b665d20e20c52c19aba537219c7ad)
+Check out the [FlightType API Documentation](https://gist.github.com/cmacdonald131/c40b665d20e20c52c19aba537219c7ad)
 
 
 ### Technology Used
