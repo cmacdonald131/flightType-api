@@ -6,13 +6,13 @@ const helpers = require('./test-helpers')
 describe('Users Endpoints', function () {
     let db
 
-    const { testUsers } = helpers.makeUsersFixtures()
+    const testUsers = helpers.makeUsersArray()
     const testUser = testUsers[0]
 
     before('make knex instance', () => {
         db = knex({
             client: 'pg',
-            connection: process.env.TEST_DB_URL,
+            connection: process.env.TEST_DATABASE_URL,
         })
         app.set('db', db)
     })
@@ -32,7 +32,7 @@ describe('Users Endpoints', function () {
                 )
             )
 
-            const requiredFields = ['username', 'password', 'name']
+            const requiredFields = ['username', 'password', 'name', 'email']
 
             requiredFields.forEach(field => {
                 const registerAttemptBody = {
@@ -54,28 +54,30 @@ describe('Users Endpoints', function () {
                 })
             })
 
-            it(`responds 400 'Password be longer than 8 characters' when empty password`, () => {
+            it(`responds 400 'Password must be longer than 8 characters' when empty password`, () => {
                 const userShortPassword = {
                     username: 'test username',
                     password: '1234567',
                     name: 'test name',
+                    email: 'test email',
                 }
                 return supertest(app)
                     .post('/api/users')
                     .send(userShortPassword)
-                    .expect(400, { error: `Password be longer than 8 characters` })
+                    .expect(400, { error: `Password must be longer than 8 characters` })
             })
 
-            it(`responds 400 'Password be less than 72 characters' when long password`, () => {
+            it(`responds 400 'Password must be less than 72 characters' when long password`, () => {
                 const userLongPassword = {
                     username: 'test username',
                     password: '*'.repeat(73),
                     name: 'test name',
+                    email: 'test email',
                 }
                 return supertest(app)
                     .post('/api/users')
                     .send(userLongPassword)
-                    .expect(400, { error: `Password be less than 72 characters` })
+                    .expect(400, { error: `Password must be less than 72 characters` })
             })
 
             it(`responds 400 error when password starts with spaces`, () => {
@@ -83,6 +85,7 @@ describe('Users Endpoints', function () {
                     username: 'test username',
                     password: ' 1Aa!2Bb@',
                     name: 'test name',
+                    email: 'test email',
                 }
                 return supertest(app)
                     .post('/api/users')
@@ -95,6 +98,7 @@ describe('Users Endpoints', function () {
                     username: 'test username',
                     password: '1Aa!2Bb@ ',
                     name: 'test name',
+                    email: 'test email',
                 }
                 return supertest(app)
                     .post('/api/users')
@@ -107,6 +111,7 @@ describe('Users Endpoints', function () {
                     username: 'test username',
                     password: '11AAaabb',
                     name: 'test name',
+                    email: 'test email',
                 }
                 return supertest(app)
                     .post('/api/users')
@@ -114,11 +119,12 @@ describe('Users Endpoints', function () {
                     .expect(400, { error: `Password must contain one upper case, lower case, number and special character` })
             })
 
-            it(`responds 400 'User name already taken' when user_name isn't unique`, () => {
+            it(`responds 400 'Username already taken' when username isn't unique`, () => {
                 const duplicateUser = {
                     username: testUser.username,
                     password: '11AAaa!!',
                     name: 'test name',
+                    email: 'test email',
                 }
                 return supertest(app)
                     .post('/api/users')
@@ -133,6 +139,7 @@ describe('Users Endpoints', function () {
                     username: 'test username',
                     password: '11AAaa!!',
                     name: 'test name',
+                    email: 'test email',
                 }
                 return supertest(app)
                     .post('/api/users')
@@ -142,7 +149,7 @@ describe('Users Endpoints', function () {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(newUser.username)
                         expect(res.body.name).to.eql(newUser.name)
-                        expect(res.body.email).to.eql('')
+                        expect(res.body.email).to.eql(newUser.email)
                         expect(res.body).to.not.have.property('password')
                         expect(res.headers.location).to.eql(`/api/users/${res.body.id}`)
                     })
@@ -155,7 +162,7 @@ describe('Users Endpoints', function () {
                             .then(row => {
                                 expect(row.username).to.eql(newUser.username)
                                 expect(row.name).to.eql(newUser.name)
-                                expect(row.email).to.eql(null)
+                                expect(row.email).to.eql(newUser.email)
 
                                 return bcrypt.compare(newUser.password, row.password)
                             })
